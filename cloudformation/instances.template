@@ -7,8 +7,8 @@ Parameters:
     Default: infratest
     AllowedValues:
       - infratest
-      - lounaistieto-qa
-      - lounaistieto
+      - data-qa
+      - data
   InstanceType:
     Description: EC2 instance type for the application servers
     Type: String

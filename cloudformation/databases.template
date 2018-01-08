@@ -7,8 +7,8 @@ Parameters:
     Default: infratest
     AllowedValues:
       - infratest
-      - lounaistieto-qa
-      - lounaistieto
+      - data-qa
+      - data
   DatabaseSubnets:
     Description: Database and EFS mount target subnets
     Type: List<AWS::EC2::Subnet::Id>

@@ -7,12 +7,8 @@ Parameters:
     Default: infratest
     AllowedValues:
       - infratest
-      - generic-dev
-      - generic-qa
-      - generic-prod
-      - turku-qa
-      - tampere-qa
-      - tampere
+      - lounaistieto-qa
+      - lounaistieto
   InstanceType:
     Description: EC2 instance type for the application servers
     Type: String
@@ -37,7 +33,7 @@ Parameters:
   HostedZoneId:
     Description: Zone ID for the DNS record
     Type: AWS::Route53::HostedZone::Id
-    Default: Z3MUEH1DAIWOFS
+    Default: Z2S6NI7C5NOEZN
     MinLength: 1
   WhitelistedIpAddress:
     Type: String
@@ -55,7 +51,7 @@ Resources:
     Properties:
       InstanceType: !Ref InstanceType
       ImageId: ami-c0cff0a6 # Ubuntu Server 16.04 LTS (HVM), SSD Volume Type
-      KeyName: sixodp-omni
+      KeyName: sixodp-lounaistieto-omni
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
         - !Ref InstanceSecurityGroup
@@ -82,17 +78,17 @@ Resources:
           pip install awscli ansible==2.3.2 markupsafe docker-py==1.9.0
 
           echo '${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com:/ /mnt nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0' >>/etc/fstab
-          echo '${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com:/mnt/var_lib_acme /var/lib/acme nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0' >>/etc/fstab
-          echo '${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com:/mnt/opt_datacatalog_data_ckan /opt/datacatalog/data/ckan nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0' >>/etc/fstab
+          echo '${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com:/var_lib_acme /var/lib/acme nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0' >>/etc/fstab
+          echo '${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com:/opt_datacatalog_data_ckan /opt/datacatalog/data/ckan nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0' >>/etc/fstab
           mount /mnt
-          mkdir -p /var/lib/acme /opt/datacatalog/data/ckan /mnt/var_lib_acme /mnt/opt_datacatalog_data_ckan
+          mkdir -p /var/lib/acme /opt/datacatalog/data/ckan
           mount /var/lib/acme
           mount /opt/datacatalog/data/ckan
           install -d -o www-data -g www-data /mnt/wp-uploads
 
           cd /root
-          git clone https://github.com/6aika/sixodp-infra.git
-          git clone -b ${GitBranch} https://github.com/6aika/sixodp.git
+          git clone https://github.com/Lounaispaikka/sixodp-infra.git
+          git clone -b ${GitBranch} https://github.com/Lounaispaikka/sixodp.git
 
           cd /root/sixodp-infra/bootstrap
           ansible-playbook -i localhost, deploy.yml
@@ -100,8 +96,8 @@ Resources:
           cd /root/sixodp
           git submodule update --init --recursive
 
-          aws s3 cp s3://sixodp-secrets/${EnvironmentName}/secrets.yml /root/sixodp-secrets/${EnvironmentName}/secrets.yml
-          aws s3 cp s3://sixodp-secrets/${EnvironmentName}/google_analytics_credentials.json /root/sixodp-secrets/${EnvironmentName}/google_analytics_credentials.json
+          aws s3 cp s3://sixodp-lounaistieto-secrets/${EnvironmentName}/secrets.yml /root/sixodp-secrets/${EnvironmentName}/secrets.yml
+          aws s3 cp s3://sixodp-lounaistieto-secrets/${EnvironmentName}/google_analytics_credentials.json /root/sixodp-secrets/${EnvironmentName}/google_analytics_credentials.json
           chmod -R go-rwx /root/sixodp-secrets/*
 
           cd /root/sixodp/ansible
@@ -161,7 +157,7 @@ Resources:
   DomainName:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: !Sub ${EnvironmentName}.dataportaali.com.
+      Name: !Sub ${EnvironmentName}.lounaistieto.fi.
       Type: A
       TTL: 300
       HostedZoneId: !Ref HostedZoneId
@@ -184,7 +180,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: s3:GetObject
-                Resource: !Sub "arn:aws:s3:::sixodp-secrets/${EnvironmentName}/*"
+                Resource: !Sub "arn:aws:s3:::sixodp-lounaistieto-secrets/${EnvironmentName}/*"
               - Effect: Allow
                 Action: "*"
                 Resource:
@@ -203,7 +199,7 @@ Outputs:
   PublicDNS:
     Value: !GetAtt EC2Instance.PublicDnsName
   SiteURL:
-    Value: !Sub https://${EnvironmentName}.dataportaali.com
+    Value: !Sub https://${EnvironmentName}.lounaistieto.fi
   AZ:
     Value: !GetAtt EC2Instance.AvailabilityZone
   PublicIP:

@@ -44,7 +44,7 @@ Resources:
       AllocatedStorage: 50
       Engine: postgres
       BackupRetentionPeriod: !If [IsProduction, 7, 3]
-      DBInstanceClass: !If [IsProduction, db.t2.small, db.t2.micro]
+      DBInstanceClass: !If [IsProduction, db.t3.small, db.t3.micro]
       MultiAZ: false
       StorageType: !If [IsProduction, gp2, standard]
       DBInstanceIdentifier: !Sub sixodp-${EnvironmentName}-ckan
@@ -60,7 +60,7 @@ Resources:
       AllocatedStorage: 50
       Engine: mysql
       BackupRetentionPeriod: !If [IsProduction, 7, 3]
-      DBInstanceClass: !If [IsProduction, db.t2.small, db.t2.micro]
+      DBInstanceClass: !If [IsProduction, db.t3.small, db.t3.micro]
       MultiAZ: false
       StorageType: !If [IsProduction, gp2, standard]
       DBInstanceIdentifier: !Sub sixodp-${EnvironmentName}-wordpress
